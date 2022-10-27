@@ -1,0 +1,29 @@
+# VS Code
+.vscode/
+*.code-workspace
+.python-version
+
+# Package files
+*.egg
+*.eggs/
+.installed.cfg
+*.egg-info
+
+# Temporary and binary files
+__pycache__/
+
+# Unittest and coverage
+htmlcov/*
+.coverage
+.coverage.*
+.tox
+junit*.xml
+coverage.xml
+.pytest_cache/
+
+# OS
+.DS_Store
+
+
+# ENV
+.venv/
