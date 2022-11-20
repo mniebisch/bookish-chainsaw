@@ -32,7 +32,6 @@ dropdown_play_ids = [play_id for play_id in sorted(dropdown_play_ids)]
 app = dash.Dash()
 app.layout = html.Div(
     [
-        html.H1("Hallo Christina", id="title"),
         dcc.Dropdown(dropdown_play_ids, dropdown_play_ids[0], id="play-id"),
         dcc.Graph(id="figure"),
     ]
