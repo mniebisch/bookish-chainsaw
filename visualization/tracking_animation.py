@@ -27,23 +27,55 @@ tracking_filepath = data_path / f"week{week_id}.csv"
 tracking_df = pd.read_csv(tracking_filepath)
 
 dropdown_play_ids = tracking_df["playId"].unique().tolist()
-dropdown_play_ids = [play_id for play_id in sorted(dropdown_play_ids)]
+dropdown_play_ids = sorted(dropdown_play_ids)
+
+dropdown_game_ids = tracking_df["gameId"].unique().tolist()
+dropdown_game_ids = sorted(dropdown_game_ids)
+
+# set animation start gameId and playId
+start_value_game_id = dropdown_game_ids[0]
+start_value_play_id = tracking_df[tracking_df["gameId"] == start_value_game_id][
+    "playId"
+][0]
 
 app = dash.Dash()
 app.layout = html.Div(
     [
-        dcc.Dropdown(dropdown_play_ids, dropdown_play_ids[0], id="play-id"),
+        dcc.Dropdown(dropdown_game_ids, start_value_game_id, id="game-id"),
+        dcc.Dropdown(id="play-id"),
         dcc.Graph(id="figure"),
     ]
 )
 
 
 @app.callback(
+    dash.Output("play-id", "options"),
+    dash.Input("game-id", "value"),
+)
+def set_play_ids_options(selected_game_id):
+    game_df = tracking_df[tracking_df["gameId"] == selected_game_id]
+    game_play_ids = game_df["playId"].unique().tolist()
+    game_play_ids = sorted(game_play_ids)
+    return [{"label": play_id, "value": play_id} for play_id in game_play_ids]
+
+
+@app.callback(
+    dash.Output("play-id", "value"),
+    dash.Input("play-id", "options"),
+)
+def set_play_id_value(available_options):
+    return available_options[0]["value"]
+
+
+@app.callback(
     dash.Output("figure", "figure"),
+    dash.Input("game-id", "value"),
     dash.Input("play-id", "value"),
 )
-def update_figure(play_id):
-    play_df = tracking_df[tracking_df["playId"] == play_id]
+def update_figure(game_id, play_id):
+    play_df = tracking_df[
+        (tracking_df["playId"] == play_id) & (tracking_df["gameId"] == game_id)
+    ]
     scatter_groups = play_df["team"].unique()
 
     # prepare animation
