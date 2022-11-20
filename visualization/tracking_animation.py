@@ -15,6 +15,69 @@ from dash import dcc, html
 # each team one color or symbol
 # mouse over information (jersey num etc)
 
+
+def map_angle(angle: Union[int, float]) -> Union[int, float]:
+    angle = angle % 360
+    if 0 <= angle <= 90:
+        return 90 - angle
+    else:
+        return 360 - (angle - 90)
+
+
+def map_direction(
+    play_df: pd.DataFrame,
+) -> dict[str, Any]:
+    play_angle = list(play_df["dir"])
+    play_angle = [map_angle(angle) for angle in play_angle]
+    play_x = list(play_df["x"])
+    play_y = list(play_df["y"])
+    x, y = [], []
+    for x0, y0, angle_deg in zip(play_x, play_y, play_angle):
+        angle_rad = np.deg2rad(angle_deg)
+        angle_x = np.cos(angle_rad)
+        angle_y = np.sin(angle_rad)
+        x1 = x0 + angle_x
+        y1 = y0 + angle_y
+        segment_x = [x0, x1, None]
+        segment_y = [y0, y1, None]
+        x.extend(segment_x)
+        y.extend(segment_y)
+    return {
+        "x": x,
+        "y": y,
+        "mode": "lines",
+        "line": {"color": "blue"},
+        "name": "motion",
+    }
+
+
+def map_orientation(
+    play_df: pd.DataFrame,
+) -> dict[str, Any]:
+    play_angle = list(play_df["o"])
+    play_angle = [map_angle(angle) for angle in play_angle]
+    play_x = list(play_df["x"])
+    play_y = list(play_df["y"])
+    x, y = [], []
+    for x0, y0, angle_deg in zip(play_x, play_y, play_angle):
+        angle_rad = np.deg2rad(angle_deg)
+        angle_x = np.cos(angle_rad)
+        angle_y = np.sin(angle_rad)
+        x1 = x0 + angle_x
+        y1 = y0 + angle_y
+        segment_x = [x0, x1, None]
+        segment_y = [y0, y1, None]
+        x.extend(segment_x)
+        y.extend(segment_y)
+    return {
+        "x": x,
+        "y": y,
+        "mode": "lines",
+        "line": {"color": "red"},
+        "name": "orientation",
+    }
+
+
 data_path = pathlib.Path(__file__).parent / ".." / "data"
 
 # pick week
@@ -160,6 +223,8 @@ def update_figure(game_id, play_id):
             "name": scatter_group,
         }
         fig_dict["data"].append(data_dict)
+        fig_dict["data"].append(map_orientation(team_frame_df))
+        fig_dict["data"].append(map_direction(team_frame_df))
 
     # make frames
     for frame_id in frame_ids:
@@ -174,6 +239,8 @@ def update_figure(game_id, play_id):
                 "name": scatter_group,
             }
             frame["data"].append(data_dict)
+            frame["data"].append(map_orientation(team_frame_df))
+            frame["data"].append(map_direction(team_frame_df))
 
         fig_dict["frames"].append(frame)
         slider_step = {
