@@ -24,15 +24,14 @@ def map_angle(angle: Union[int, float]) -> Union[int, float]:
         return 360 - (angle - 90)
 
 
-def map_direction(
-    play_df: pd.DataFrame,
-) -> dict[str, Any]:
-    play_angle = list(play_df["dir"])
-    play_angle = [map_angle(angle) for angle in play_angle]
-    play_x = list(play_df["x"])
-    play_y = list(play_df["y"])
-    x, y = [], []
-    for x0, y0, angle_deg in zip(play_x, play_y, play_angle):
+def create_angles_lines(
+    x: list[Union[int, float]],
+    y: list[Union[int, float]],
+    angle: list[Union[int, float]],
+) -> tuple[list[Union[int, float]], list[Union[int, float]]]:
+    angle = [map_angle(value) for value in angle]
+    lines_x, lines_y = [], []
+    for x0, y0, angle_deg in zip(x, y, angle):
         angle_rad = np.deg2rad(angle_deg)
         angle_x = np.cos(angle_rad)
         angle_y = np.sin(angle_rad)
@@ -40,8 +39,18 @@ def map_direction(
         y1 = y0 + angle_y
         segment_x = [x0, x1, None]
         segment_y = [y0, y1, None]
-        x.extend(segment_x)
-        y.extend(segment_y)
+        lines_x.extend(segment_x)
+        lines_y.extend(segment_y)
+    return lines_x, lines_y
+
+
+def map_direction(
+    play_df: pd.DataFrame,
+) -> dict[str, Any]:
+    play_angle = list(play_df["dir"])
+    play_x = list(play_df["x"])
+    play_y = list(play_df["y"])
+    x, y = create_angles_lines(x=play_x, y=play_y, angle=play_angle)
     return {
         "x": x,
         "y": y,
@@ -55,20 +64,9 @@ def map_orientation(
     play_df: pd.DataFrame,
 ) -> dict[str, Any]:
     play_angle = list(play_df["o"])
-    play_angle = [map_angle(angle) for angle in play_angle]
     play_x = list(play_df["x"])
     play_y = list(play_df["y"])
-    x, y = [], []
-    for x0, y0, angle_deg in zip(play_x, play_y, play_angle):
-        angle_rad = np.deg2rad(angle_deg)
-        angle_x = np.cos(angle_rad)
-        angle_y = np.sin(angle_rad)
-        x1 = x0 + angle_x
-        y1 = y0 + angle_y
-        segment_x = [x0, x1, None]
-        segment_y = [y0, y1, None]
-        x.extend(segment_x)
-        y.extend(segment_y)
+    x, y = create_angles_lines(x=play_x, y=play_y, angle=play_angle)
     return {
         "x": x,
         "y": y,
