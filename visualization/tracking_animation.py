@@ -86,6 +86,12 @@ if week_id not in set(range(1, 9)):
 # load data
 tracking_filepath = data_path / f"week{week_id}.csv"
 tracking_df = pd.read_csv(tracking_filepath)
+tracking_df = pd.concat(
+    [pd.read_csv(data_path / f"week{week_id}.csv") for week_id in range(1, 9)]
+)
+
+scout_filepath = data_path / "pffScoutingData.csv"
+scout_df = pd.read_csv(scout_filepath)
 
 dropdown_play_ids = tracking_df["playId"].unique().tolist()
 dropdown_play_ids = sorted(dropdown_play_ids)
@@ -138,6 +144,10 @@ def update_figure(game_id, play_id):
         (tracking_df["playId"] == play_id) & (tracking_df["gameId"] == game_id)
     ]
     scatter_groups = play_df["team"].unique()
+
+    scout_play_df = scout_df[
+        (scout_df["playId"] == play_id) & (scout_df["gameId"] == game_id)
+    ]
 
     # prepare animation
     frame_ids = np.arange(1, play_df["frameId"].max() + 1)
@@ -214,6 +224,7 @@ def update_figure(game_id, play_id):
     frame_df = play_df[play_df["frameId"] == intital_frame_id]
     for scatter_group in scatter_groups:
         team_frame_df = frame_df[frame_df["team"] == scatter_group]
+        # next TODO here
         data_dict = {
             "x": list(team_frame_df["x"]),
             "y": list(team_frame_df["y"]),

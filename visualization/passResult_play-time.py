@@ -71,7 +71,8 @@ if __name__ == "__main__":
 
     # for inspection
     check_sack_df.loc[(check_sack_df["passResult"] == "S") != check_sack_df["sack"]]
-    scout_df.loc[(scout_df["gameId"] == 2021091210) & (scout_df["playId"] == 146)]
+    scout_df.loc[(scout_df["gameId"] == 2021092700) & (scout_df["playId"] == 356)]
+    plays_df.loc[(plays_df["gameId"] == 2021092700) & (plays_df["playId"] == 356)]
 
     weeks_dfs = [
         pd.read_csv(data_path / f"week{week_id}.csv") for week_id in range(1, 9)
