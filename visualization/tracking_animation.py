@@ -87,8 +87,12 @@ if week_id not in set(range(1, 9)):
 tracking_filepath = data_path / f"week{week_id}.csv"
 tracking_df = pd.read_csv(tracking_filepath)
 tracking_df = pd.concat(
-    [pd.read_csv(data_path / f"week{week_id}.csv") for week_id in range(1, 9)]
+    [
+        pd.read_csv(data_path / f"week{week_id}.csv", dtype={"nflId": pd.Int64Dtype()})
+        for week_id in range(1, 9)
+    ]
 )
+tracking_df = tracking_df.fillna(value={"nflId": -9999})
 
 scout_filepath = data_path / "pffScoutingData.csv"
 scout_df = pd.read_csv(scout_filepath)
@@ -222,14 +226,18 @@ def update_figure(game_id, play_id):
     # make initial frame
     intital_frame_id = 1
     frame_df = play_df[play_df["frameId"] == intital_frame_id]
+    frame_df = pd.merge(frame_df, scout_play_df, how="left", on="nflId")
+    frame_df.loc[frame_df["nflId"] == -9999, "pff_positionLinedUp"] = "ball"
     for scatter_group in scatter_groups:
         team_frame_df = frame_df[frame_df["team"] == scatter_group]
         # next TODO here
+
         data_dict = {
             "x": list(team_frame_df["x"]),
             "y": list(team_frame_df["y"]),
             "mode": "markers",
             "name": scatter_group,
+            "text": list(team_frame_df["pff_positionLinedUp"]),
         }
         fig_dict["data"].append(data_dict)
         fig_dict["data"].append(map_orientation(team_frame_df))
