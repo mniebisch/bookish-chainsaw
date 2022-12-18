@@ -59,3 +59,22 @@ class TestCalcLeftStart:
             orientation=input_value
         )
         np.testing.assert_equal(expected_value, output_value)
+
+
+class TestCalcOrientationDeviation:
+    @pytest.mark.parametrize(
+        "orientation_value, orientation_start_value, expected_value",
+        [(45, 90, -45), (45, 270, 135)],
+    )
+    def test_computation(
+        self, orientation_value: int, orientation_start_value: int, expected_value: int
+    ) -> None:
+        orientation_value = pd.Series([orientation_value])
+        orientation_start_value = pd.Series([orientation_start_value])
+        expected_value = pd.Series([expected_value], name="orientationDeviation")
+
+        output_value = orientation.calc_orientation_deviation(
+            orientation_value=orientation_value,
+            orientation_start=orientation_start_value,
+        )
+        pd.testing.assert_series_equal(expected_value, output_value)
