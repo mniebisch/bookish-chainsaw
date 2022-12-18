@@ -12,7 +12,7 @@ def _calc_left_start(orientation: pd.Series) -> np.ndarray:
     ind = orientation.between(270, 360)  # map to 0, 90
     orientation_recalculated[ind] = orientation[ind] - 270
     ind = orientation.between(0, 90)  # map to 90, 180
-    orientation_recalculated[ind] = orientation[ind] - 90
+    orientation_recalculated[ind] = orientation[ind] + 90
     return orientation_recalculated
 
 
