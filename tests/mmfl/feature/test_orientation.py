@@ -78,3 +78,20 @@ class TestCalcOrientationDeviation:
             orientation_start=orientation_start_value,
         )
         pd.testing.assert_series_equal(expected_value, output_value)
+
+
+class TestCalcAccumulatedOrientationChange:
+    def test_computation_simple(self) -> None:
+        input_data = pd.Series([0, 10, 5, -15])
+        expected_value = 35
+        output_value = orientation.calc_accumulated_orientation_change(input_data)
+
+        assert expected_value == pytest.approx(output_value)
+
+    def test_computation_0_vs_360(self) -> None:
+        input_data = pd.Series([2, 358])
+        expected_value = 4
+
+        output_value = orientation.calc_accumulated_orientation_change(input_data)
+
+        assert expected_value == pytest.approx(output_value)
