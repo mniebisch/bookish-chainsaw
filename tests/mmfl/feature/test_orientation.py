@@ -88,9 +88,29 @@ class TestCalcAccumulatedOrientationChange:
 
         assert expected_value == pytest.approx(output_value)
 
-    def test_computation_0_vs_360(self) -> None:
-        input_data = pd.Series([2, 358])
-        expected_value = 4
+    @pytest.mark.parametrize(
+        "input_array, expected_value",
+        [
+            ([2, 358], 4),
+            ((358, 2), 4),
+            ([-10, 10], 20),
+            ([-180, 180], 0),
+            ([135, 315], 180),
+            ([135, -45], 180),
+        ],
+    )
+    def test_computation_0_vs_360(
+        self, input_array: list[int], expected_value: int
+    ) -> None:
+        input_data = pd.Series(input_array)
+
+        output_value = orientation.calc_accumulated_orientation_change(input_data)
+
+        assert expected_value == pytest.approx(output_value)
+
+    def test_computation_floats(self) -> None:
+        input_data = pd.Series([2.5, 357.5])
+        expected_value = 5
 
         output_value = orientation.calc_accumulated_orientation_change(input_data)
 

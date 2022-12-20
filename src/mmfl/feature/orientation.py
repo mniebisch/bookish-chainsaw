@@ -1,7 +1,19 @@
 import numpy as np
 import pandas as pd
 
-__all__ = ["calc_accumulated_orientation_change", "calc_orientation_deviation"]
+__all__ = [
+    "calc_accumulated_orientation_change",
+    "calc_orientation_deviation",
+    "calc_minimal_angle_difference",
+]
+
+
+def calc_minimal_angle_difference(differences_deg: pd.Series) -> np.ndarray:
+    differences_rad = np.deg2rad(differences_deg)
+    angle_differences_rad = np.arctan2(np.sin(differences_rad), np.cos(differences_rad))
+    angle_differences_deg = np.rad2deg(angle_differences_rad)
+
+    return angle_differences_deg
 
 
 def calc_accumulated_orientation_change(player_orientation: pd.Series) -> float:
@@ -10,13 +22,12 @@ def calc_accumulated_orientation_change(player_orientation: pd.Series) -> float:
         - sorted in time
         - data of one player for a single play
     """
-    differences = player_orientation.diff()
-    # refactor?
-    angle_differences = np.fmod(differences + 180, 360) - 180
-    absolute_change = np.abs(angle_differences)
-    accumulated_change = np.nansum(absolute_change)
+    player_differences = player_orientation.diff()
+    angle_differences = calc_minimal_angle_difference(player_differences)
+    absolute_differences = np.abs(angle_differences)
+    accumulated_differences = np.sum(absolute_differences)
 
-    return accumulated_change
+    return accumulated_differences
 
 
 def calc_orientation_deviation(
