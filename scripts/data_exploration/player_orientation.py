@@ -9,6 +9,7 @@ import pandas as pd
 import seaborn as sns
 
 from mmfl.feature import orientation as orientation_feat
+from mmfl.preprocessing import scouting as scouting_pp
 
 
 def calc_start_orientation(play_df: pd.DataFrame, track_df: pd.DataFrame) -> pd.Series:
@@ -44,6 +45,7 @@ def calc_actual_start_orientation(track_df: pd.DataFrame) -> pd.Series:
     return unrolled_start_orientation["actual_start_orientation"]
 
 
+# TODO move to preprocessing
 def filter_od_line_players(
     track_df: pd.DataFrame, filter_df: pd.DataFrame
 ) -> pd.DataFrame:
@@ -56,6 +58,7 @@ def filter_od_line_players(
     )
 
 
+# TODO move to preprocessing
 def get_od_line_players(scout_df: pd.DataFrame) -> pd.DataFrame:
     line_identifiers = ["Pass Block", "Pass Rush"]
     lines_bool = scout_df["pff_role"].isin(line_identifiers)
@@ -68,7 +71,15 @@ if __name__ == "__main__":
     # load data
     week_id = 1
     tracking_filepath = data_path / f"week{week_id}.csv"
-    tracking_df = pd.read_csv(tracking_filepath, dtype={"nflId": pd.Int64Dtype()})
+    # tracking_df = pd.read_csv(tracking_filepath, dtype={"nflId": pd.Int64Dtype()})
+    tracking_df = pd.concat(
+        [
+            pd.read_csv(
+                data_path / f"week{week_id}.csv", dtype={"nflId": pd.Int64Dtype()}
+            )
+            for week_id in range(1, 9)
+        ]
+    )
     tracking_df = tracking_df.fillna(value={"nflId": -9999})
 
     play_data_filepath = data_path / "plays.csv"
@@ -77,9 +88,11 @@ if __name__ == "__main__":
     scouting_filepath = data_path / "pffScoutingData.csv"
     scouting_df = pd.read_csv(scouting_filepath)
 
+    # TODO move to preprocessing
     # handle O- and D-line
     line_players_df = get_od_line_players(scout_df=scouting_df)
     tracking_df = filter_od_line_players(tracking_df, line_players_df)
+    scouting_df = filter_od_line_players(scouting_df, line_players_df)
 
     # temporary fix as not all weeks are used
     tracking_df = tracking_df.dropna(subset="frameId")
@@ -143,19 +156,47 @@ if __name__ == "__main__":
         diff_dfs,
     )
 
-    tracking_player_groups = tracking_df.groupby(["gameId", "playId", "nflId"])
+    def max_abs_change(x: pd.Series) -> float:
+        return x.abs().abs()
+
+    agg_overview = {
+        (lambda x: np.max(np.abs(x)), "max"): [
+            "sequential_diff",
+            "empirical_diff",
+            "theoretical_diff",
+        ],
+        (lambda x: np.nanmean(np.abs(x)), "mean"): [
+            "sequential_diff",
+        ],
+        (lambda x: np.nanmedian(np.abs(x)), "median"): [
+            "sequential_diff",
+        ],
+        (lambda x: np.nanstd(np.abs(x)), "std"): [
+            "sequential_diff",
+        ],
+        (lambda x: np.nansum(np.abs(x)), "accumulated"): [
+            "sequential_diff",
+        ],
+    }
+
+    agg_dict = {}
+    for (agg_func, agg_name), columns in agg_overview.items():
+        for column in columns:
+            agg_dict[f"{column}_{agg_name}"] = pd.NamedAgg(
+                column=column, aggfunc=agg_func
+            )
 
     # TODO checkout cumsum
     # TODO visualize distribution
     # TODO visualize comparison with hits and stuff
-    stats = diff_df.groupby(["gameId", "playId", "nflId"]).agg(
-        accumulated=pd.NamedAgg("sequential_diff", lambda x: np.sum(np.abs(x))),
-        max_diff_empirical=pd.NamedAgg("empirical_diff", lambda x: np.max(np.abs(x))),
-        max_diff_theoretical=pd.NamedAgg(
-            "theoretical_diff", lambda x: np.max(np.abs(x))
-        ),
-        max_diff_sequential=pd.NamedAgg("sequential_diff", lambda x: np.max(np.abs(x))),
-    )
-    sns.displot(stats, x="accumulated")
+    stats = diff_df.groupby(["gameId", "playId", "nflId"]).agg(**agg_dict)
+
+    action_df = scouting_pp.revert_actions_one_hot_encoding(scouting_df)
+
+    vis_df = pd.merge(stats, action_df, how="left", on=["gameId", "playId", "nflId"])
+
+    vis_df = vis_df[vis_df["action"] != "nothing"]
+
+    sns.boxplot(vis_df, y="empirical_diff_max", x="action")
     plt.show()
     print("blub")
