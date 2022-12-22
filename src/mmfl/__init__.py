@@ -1,3 +1,3 @@
-from mmfl import feature
+from mmfl import feature, preprocessing
 
-__all__ = ["feature"]
+__all__ = ["feature", "preprocessing"]
