@@ -228,6 +228,7 @@ def update_figure(game_id, play_id):
     frame_df = play_df[play_df["frameId"] == intital_frame_id]
     frame_df = pd.merge(frame_df, scout_play_df, how="left", on="nflId")
     frame_df.loc[frame_df["nflId"] == -9999, "pff_positionLinedUp"] = "ball"
+    frame_df.loc[frame_df["nflId"] == -9999, "pff_role"] = "ball"
     for scatter_group in scatter_groups:
         team_frame_df = frame_df[frame_df["team"] == scatter_group]
         # next TODO here
@@ -237,7 +238,9 @@ def update_figure(game_id, play_id):
             "y": list(team_frame_df["y"]),
             "mode": "markers",
             "name": scatter_group,
-            "text": list(team_frame_df["pff_positionLinedUp"]),
+            "text": list(
+                team_frame_df["pff_positionLinedUp"] + team_frame_df["pff_role"]
+            ),
         }
         fig_dict["data"].append(data_dict)
         fig_dict["data"].append(map_orientation(team_frame_df))
