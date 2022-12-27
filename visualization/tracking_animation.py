@@ -241,6 +241,7 @@ def update_figure(game_id, play_id):
             "text": list(
                 team_frame_df["pff_positionLinedUp"] + team_frame_df["pff_role"]
             ),
+            "marker": dict(colorscale="Jet", size=10),
         }
         fig_dict["data"].append(data_dict)
         fig_dict["data"].append(map_orientation(team_frame_df))
