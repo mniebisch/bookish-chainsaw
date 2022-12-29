@@ -11,6 +11,45 @@ __all__ = ["Cone", "Trace"]
 TraceElements = geometric_object.AsymptoteX | geometric_object.Line
 
 
+class Player:
+    def __init__(
+        self,
+        x_pos: float,
+        y_pos: float,
+        orientation: float,
+        speed: float,
+        acceleration: float,
+    ) -> None:
+        self._x_pos = x_pos
+        self._y_pos = y_pos
+        self._orientation = orientation
+        self._speed = speed
+        self._acceleration = acceleration
+
+    @property
+    def x_pos(self) -> float:
+        return self._x_pos
+
+    @property
+    def y_pos(self) -> float:
+        return self._y_pos
+
+    @property
+    def orientation(self) -> float:
+        return self._orientation
+
+    @property
+    def speed(self) -> float:
+        return self._speed
+
+    @property
+    def acceleration(self) -> float:
+        return self._acceleration
+
+
+# class DLinePlayer:
+
+
 @dataclasses.dataclass(frozen=True)
 class Hit:
     id: int
