@@ -1,6 +1,11 @@
-__all__ = ["Circle", "Line", "Point"]
+__all__ = ["AsymptoteX", "Circle", "Line", "Point"]
 
 import dataclasses
+
+
+@dataclasses.dataclass(frozen=True)
+class AsymptoteX:
+    x: float
 
 
 @dataclasses.dataclass(frozen=True)
