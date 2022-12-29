@@ -2,6 +2,8 @@ __all__ = ["AsymptoteX", "Circle", "Line", "Point"]
 
 import dataclasses
 
+import numpy as np
+
 
 @dataclasses.dataclass(frozen=True)
 class AsymptoteX:
@@ -28,3 +30,6 @@ class Line:
 class Point:
     x: float
     y: float
+
+    def as_array(self) -> np.ndarray:
+        return np.array([self.x, self.y])
