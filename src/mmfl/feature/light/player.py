@@ -1,4 +1,5 @@
 import dataclasses
+import uuid
 import warnings
 from typing import Optional
 
@@ -26,6 +27,8 @@ class Player:
         self._speed = speed
         self._acceleration = acceleration
 
+        self._id = uuid.uuid4()
+
     @property
     def x_pos(self) -> float:
         return self._x_pos
@@ -46,8 +49,12 @@ class Player:
     def acceleration(self) -> float:
         return self._acceleration
 
+    @property
+    def id(self) -> uuid.UUID:
+        return self._id
 
-# class DLinePlayer:
+
+# class DLinePlayer(Player):
 
 
 @dataclasses.dataclass(frozen=True)
