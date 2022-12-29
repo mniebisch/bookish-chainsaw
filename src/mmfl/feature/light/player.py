@@ -170,6 +170,33 @@ class DLinePlayer(Player):
         return self._cone
 
 
+class OffensePlayer(Player):
+    def __init__(
+        self,
+        x_pos: float,
+        y_pos: float,
+        orientation: float,
+        speed: float,
+        acceleration: float,
+        sphere_radius: float,
+    ) -> None:
+        super().__init__(
+            x_pos=x_pos,
+            y_pos=y_pos,
+            orientation=orientation,
+            speed=speed,
+            acceleration=acceleration,
+        )
+
+        self._sphere = geometric_object.Circle(
+            a=self.x_pos, b=self.y_pos, r=sphere_radius
+        )
+
+    @property
+    def sphere(self) -> geometric_object.Circle:
+        return self._sphere
+
+
 def _clean_zeros(x: np.ndarray) -> np.ndarray:
     return np.where(np.isclose(x, 0), 0, x)
 
