@@ -54,9 +54,6 @@ class Player:
         return self._id
 
 
-# class DLinePlayer(Player):
-
-
 @dataclasses.dataclass(frozen=True)
 class Hit:
     id: int
@@ -141,6 +138,36 @@ class Cone:
             Trace(_construct_trace(point=self.source, slope=slope)) for slope in slopes
         ]
         return traces
+
+
+class DLinePlayer(Player):
+    def __init__(
+        self,
+        x_pos: float,
+        y_pos: float,
+        orientation: float,
+        speed: float,
+        acceleration: float,
+        phi_max: float,
+        phi_num: float,
+    ) -> None:
+        super().__init__(
+            x_pos=x_pos,
+            y_pos=y_pos,
+            orientation=orientation,
+            speed=speed,
+            acceleration=acceleration,
+        )
+        self._cone = Cone(
+            source=geometric_object.Point(x=self.x_pos, y=self.y_pos),
+            orientation=self.orientation,
+            phi_max=phi_max,
+            phi_num=phi_num,
+        )
+
+    @property
+    def cone(self) -> Cone:
+        return self._cone
 
 
 def _clean_zeros(x: np.ndarray) -> np.ndarray:
