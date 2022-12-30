@@ -1,6 +1,6 @@
 import pytest
 
-from mmfl.feature.light import utils
+from mmfl.feature.light import geometric_object, utils
 
 
 class TestFindNestedArgmin:
@@ -48,3 +48,24 @@ class TestCalcOrientationSigns:
     def test_signs(self, deg: float, expected: tuple[int, int]) -> None:
         output = utils.calc_orientation_signs(deg=deg)
         assert output == expected
+
+
+class TestCalcVectorSigns:
+    @pytest.mark.parametrize(
+        "src_x, src_y, dest_x, dest_y, expected",
+        [(0, 0, 1, 1, (1, 1)), (0, 0, -1, 0, (-1, 0))],
+    )
+    def test_signs(
+        self,
+        src_x: float,
+        src_y: float,
+        dest_x: float,
+        dest_y: float,
+        expected: tuple[int, int],
+    ) -> None:
+        source = geometric_object.Point(x=src_x, y=src_y)
+        destination = geometric_object.Point(x=dest_x, y=dest_y)
+
+        output = utils.calc_vector_signs(source=source, destination=destination)
+
+        assert expected == output
