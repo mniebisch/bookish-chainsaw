@@ -5,7 +5,7 @@ from typing import Optional
 
 import numpy as np
 
-from mmfl.feature.light import geometric_object, quadratic
+from mmfl.feature.light import geometric_object, quadratic, utils
 
 __all__ = ["Cone", "Trace"]
 
@@ -88,6 +88,7 @@ class OffensePlayer(Player):
 
 
 class Trace:
+    # TODO add filter method based on orientation
     def __init__(self, line: TraceElements) -> None:
         self._line = line
         self._hit: Optional[Hit] = None
@@ -109,6 +110,8 @@ class Trace:
     def find_hit(
         self, players: list[OffensePlayer], origin: geometric_object.Point
     ) -> None:
+        # TODO create check if origin is on trace
+        # TODO or better add to trace!
         intersections: list[list[geometric_object.Point]] = [
             quadratic.calc_intersection(line=self.line, circle=player.sphere)
             for player in players
@@ -118,21 +121,12 @@ class Trace:
             for points in intersections
         ]
 
-        # for point
-        nested_argmin = [np.argmin(distance_points) for distance_points in distances]
-        # for player
-        main_argmin = np.argmin(
-            [
-                distance_points[distance_argmin]
-                for distance_points, distance_argmin in zip(distances, nested_argmin)
-            ]
-        )
-        # what if everything is empty? no intersections?
-
-        # what do I need? Intersection point and ID of intersection object
-        # 2d minima required
-
-        raise NotImplementedError
+        distance_min_ind = utils.find_nested_argmin(distances)
+        # TODO don't like if need to know conditions following line. fix later
+        if distance_min_ind or distance_min_ind != (-1, -1):
+            hit_player = players[distance_min_ind[0]]
+            hit_point = intersections[distance_min_ind[0]][distance_min_ind[1]]
+            self.hit = Hit(id=hit_player.id, point=hit_point)
 
 
 class Cone:
