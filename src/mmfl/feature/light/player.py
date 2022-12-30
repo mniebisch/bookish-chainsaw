@@ -89,13 +89,30 @@ class OffensePlayer(Player):
 
 class Trace:
     # TODO add filter method based on orientation
-    def __init__(self, line: TraceElements) -> None:
+    # TODO restructure, if orientation and and origin are provided
+    # line can be computed from those parameters
+    def __init__(
+        self,
+        line: TraceElements,
+        orientation: float,  # deg
+        origin: geometric_object.Point,
+    ) -> None:
         self._line = line
         self._hit: Optional[Hit] = None
+        self._orientation = orientation
+        self._origin = origin
 
     @property
     def line(self) -> TraceElements:
         return self._line
+
+    @property
+    def origin(self) -> geometric_object.Point:
+        return self._origin
+
+    @property
+    def orientation(self) -> float:
+        return self._orientation
 
     @property
     def hit(self) -> Optional[Hit]:
@@ -107,9 +124,7 @@ class Trace:
             raise ValueError
         self._hit = value
 
-    def find_hit(
-        self, players: list[OffensePlayer], origin: geometric_object.Point
-    ) -> None:
+    def find_hit(self, players: list[OffensePlayer]) -> None:
         # TODO create check if origin is on trace
         # TODO or better add to trace!
         intersections: list[list[geometric_object.Point]] = [
@@ -117,7 +132,10 @@ class Trace:
             for player in players
         ]
         distances: list[list[float]] = [
-            [np.linalg.norm(point.as_array() - origin.as_array()) for point in points]
+            [
+                np.linalg.norm(point.as_array() - self.origin.as_array())
+                for point in points
+            ]
             for points in intersections
         ]
 
@@ -181,7 +199,12 @@ class Cone:
             slopes = phis_y / phis_x
 
         traces = [
-            Trace(_construct_trace(point=self.source, slope=slope)) for slope in slopes
+            Trace(
+                line=_construct_trace(point=self.source, slope=slope),
+                orientation=phi,
+                origin=self.source,
+            )
+            for slope, phi in zip(slopes, phis)
         ]
         return traces
 

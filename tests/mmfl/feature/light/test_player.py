@@ -58,8 +58,12 @@ class TestTrace:
 
     @pytest.fixture(name="trace")
     def create_trace(self, offense_players: list[player.OffensePlayer]) -> player.Trace:
-        trace = player.Trace(line=geometric_object.Line(m=0, n=1))
-        trace.find_hit(players=offense_players, origin=geometric_object.Point(x=0, y=1))
+        trace = player.Trace(
+            line=geometric_object.Line(m=0, n=1),
+            orientation=90,
+            origin=geometric_object.Point(x=0, y=1),
+        )
+        trace.find_hit(players=offense_players)
         return trace
 
     def test_find_hit_expected_id(
