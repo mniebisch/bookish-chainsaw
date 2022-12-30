@@ -101,10 +101,17 @@ class Trace:
         self._hit: Optional[Hit] = None
         self._orientation = orientation
         self._origin = origin
+        self._orientation_sign: tuple[int, int] = utils.calc_orientation_signs(
+            self.orientation
+        )
 
     @property
     def line(self) -> TraceElements:
         return self._line
+
+    @property
+    def orientation_sign(self) -> tuple[int, int]:
+        return self._orientation_sign
 
     @property
     def origin(self) -> geometric_object.Point:
