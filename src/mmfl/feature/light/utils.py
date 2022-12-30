@@ -1,6 +1,20 @@
+from typing import Callable
+
 import numpy as np
 
-__all__ = ["find_nested_argmin"]
+__all__ = ["calc_orientation_signs", "find_nested_argmin"]
+
+
+def calc_orientation_signs(deg: float) -> tuple[int, int]:
+    component_fs: list[Callable] = [np.cos, np.sin]
+
+    trionometrics = [cf(np.deg2rad(deg)) for cf in component_fs]
+    trionometrics = [0 if np.isclose(tri, 0) else tri for tri in trionometrics]
+    signs = np.sign(trionometrics)
+
+    assert len(signs) == 2
+
+    return (signs[0], signs[1])
 
 
 def find_nested_argmin(xs: list[list[float | int]]) -> tuple[int, int] | tuple:

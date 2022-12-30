@@ -32,3 +32,19 @@ class TestFindNestedArgmin:
         output = utils.find_nested_argmin(xs)
 
         assert expected == output
+
+
+class TestCalcOrientationSigns:
+    @pytest.mark.parametrize(
+        "deg, expected",
+        [
+            (0, (1, 0)),
+            (45, (1, 1)),
+            (90, (0, 1)),
+            (-45, (1, -1)),
+            (360 + 90 + 45, (-1, 1)),
+        ],
+    )
+    def test_signs(self, deg: float, expected: tuple[int, int]) -> None:
+        output = utils.calc_orientation_signs(deg=deg)
+        assert output == expected
