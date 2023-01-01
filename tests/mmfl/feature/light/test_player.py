@@ -102,6 +102,42 @@ class TestConeLight:
         )
 
 
+class TestDLinePlayer:
+    def test_(self) -> None:
+        defense_player = player.DLinePlayer(
+            x_pos=1,
+            y_pos=1,
+            orientation=-90,
+            speed=3,
+            acceleration=1,
+            phi_max=90,
+            phi_num=3,
+        )
+        offense_players = [
+            player.OffensePlayer(
+                x_pos=1,
+                y_pos=-8,
+                orientation=90,
+                speed=10,
+                acceleration=20,
+                sphere_radius=3,
+            ),
+        ]
+
+        defense_player.rush(players=offense_players)
+        expected_hits = [
+            None,
+            player.Hit(
+                id=offense_players[0].id, point=geometric_object.Point(x=1, y=-5)
+            ),
+            None,
+        ]
+        output_hits = [trace.hit for trace in defense_player.cone.traces]
+        assert all(
+            expected == output for expected, output in zip(expected_hits, output_hits)
+        )
+
+
 class TestTrace:
     @pytest.fixture(name="offense_players")
     def create_offense_players(self) -> list[player.OffensePlayer]:

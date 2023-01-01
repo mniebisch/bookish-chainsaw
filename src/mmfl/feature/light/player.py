@@ -271,6 +271,9 @@ class DLinePlayer(Player):
     def cone(self) -> Cone:
         return self._cone
 
+    def rush(self, players: list[OffensePlayer]) -> None:
+        self.cone.shine_light(players=players)
+
 
 def _clean_zeros(x: np.ndarray) -> np.ndarray:
     return np.where(np.isclose(x, 0), 0, x)
