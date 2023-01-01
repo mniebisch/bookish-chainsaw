@@ -131,13 +131,28 @@ class Trace:
             raise ValueError
         self._hit = value
 
+    def _filter_intersections(
+        self, intersections: list[list[geometric_object.Point]]
+    ) -> list[list[geometric_object.Point]]:
+        intersection_masks = [
+            [self._compare_sign(destination=point) for point in intersection_points]
+            for intersection_points in intersections
+        ]
+
+        intersections_filtered = [
+            [point for point, mask in zip(intersection_points, masks) if mask]
+            for intersection_points, masks in zip(intersections, intersection_masks)
+        ]
+        return intersections_filtered
+
     def find_hit(self, players: list[OffensePlayer]) -> None:
-        # TODO create check if origin is on trace
-        # TODO or better add to trace!
         intersections: list[list[geometric_object.Point]] = [
             quadratic.calc_intersection(line=self.line, circle=player.sphere)
             for player in players
         ]
+
+        intersections = self._filter_intersections(intersections=intersections)
+
         distances: list[list[float]] = [
             [
                 np.linalg.norm(point.as_array() - self.origin.as_array())
@@ -148,10 +163,17 @@ class Trace:
 
         distance_min_ind = utils.find_nested_argmin(distances)
         # TODO don't like if need to know conditions following line. fix later
-        if distance_min_ind or distance_min_ind != (-1, -1):
-            hit_player = players[distance_min_ind[0]]
-            hit_point = intersections[distance_min_ind[0]][distance_min_ind[1]]
-            self.hit = Hit(id=hit_player.id, point=hit_point)
+        if distance_min_ind:
+            if distance_min_ind != (-1, -1):
+                hit_player = players[distance_min_ind[0]]
+                hit_point = intersections[distance_min_ind[0]][distance_min_ind[1]]
+                self.hit = Hit(id=hit_player.id, point=hit_point)
+
+    def _compare_sign(self, destination: geometric_object.Point) -> bool:
+        vector_sign = utils.calc_vector_signs(
+            source=self.origin, destination=destination
+        )
+        return self.orientation_sign == vector_sign
 
 
 class Cone:

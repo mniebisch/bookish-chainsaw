@@ -53,6 +53,14 @@ class TestTrace:
                 acceleration=20,
                 sphere_radius=3,
             ),
+            player.OffensePlayer(
+                x_pos=-200,
+                y_pos=1,
+                orientation=90,
+                speed=10,
+                acceleration=20,
+                sphere_radius=3,
+            ),
         ]
         return offense_players
 
@@ -60,17 +68,26 @@ class TestTrace:
     def create_trace(self, offense_players: list[player.OffensePlayer]) -> player.Trace:
         trace = player.Trace(
             line=geometric_object.Line(m=0, n=1),
-            orientation=90,
+            orientation=180,
             origin=geometric_object.Point(x=0, y=1),
         )
-        trace.find_hit(players=offense_players)
         return trace
 
     def test_find_hit_expected_id(
         self, trace: player.Trace, offense_players: list[player.OffensePlayer]
     ) -> None:
-        assert trace.hit.id == offense_players[0].id
+        trace.find_hit(players=offense_players)
+        assert trace.hit.id == offense_players[1].id
 
-    def test_find_hit_expected_point(self, trace: player.Trace) -> None:
-        expected_point = geometric_object.Point(x=9, y=1)
+    def test_find_hit_expected_point(
+        self, trace: player.Trace, offense_players: list[player.OffensePlayer]
+    ) -> None:
+        expected_point = geometric_object.Point(x=-97, y=1)
+        trace.find_hit(players=offense_players)
         assert trace.hit.point == pytest.approx(expected_point)
+
+    def test_find_hit_no_hit(
+        self, trace: player.Trace, offense_players: list[player.OffensePlayer]
+    ) -> None:
+        trace.find_hit(players=offense_players[:1])
+        assert trace.hit is None
