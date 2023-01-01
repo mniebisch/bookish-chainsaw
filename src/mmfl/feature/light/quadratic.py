@@ -22,7 +22,7 @@ def solve_quadratic(a: float, b: float, c: float) -> list[float]:
 def _calc_asymptotex_intersection(
     asymptote: geometric_object.AsymptoteX, circle: geometric_object.Circle
 ) -> list[geometric_object.Point]:
-    p = 2 * circle.b
+    p = -2 * circle.b
     q = circle.b**2 + (asymptote.x - circle.a) ** 2 - circle.r**2
 
     ys = solve_quadratic(a=1, b=p, c=q)
