@@ -3,7 +3,7 @@ import pytest
 from mmfl.feature.light import geometric_object, player
 
 
-class TestCone:
+class TestConeBasics:
     source = geometric_object.Point(x=0, y=0)
     orientation = 0
     phi_max = 90
@@ -30,6 +30,75 @@ class TestCone:
         assert all(
             expected == pytest.approx(output)
             for expected, output in zip(expected_traces, output_traces)
+        )
+
+
+class TestConeLight:
+    source = geometric_object.Point(x=0, y=0)
+    orientation = 0
+    phi_max = 90
+    phi_num = 3
+
+    cone = player.Cone(
+        source=source, orientation=orientation, phi_max=phi_max, phi_num=phi_num
+    )
+
+    def test_shine_light(self) -> None:
+        offense_players = [
+            player.OffensePlayer(
+                x_pos=4,
+                y_pos=0,
+                orientation=90,
+                speed=10,
+                acceleration=20,
+                sphere_radius=2,
+            ),
+            player.OffensePlayer(
+                x_pos=0,
+                y_pos=-10,
+                orientation=90,
+                speed=10,
+                acceleration=20,
+                sphere_radius=1,
+            ),
+            player.OffensePlayer(
+                x_pos=-2,
+                y_pos=0,
+                orientation=90,
+                speed=10,
+                acceleration=20,
+                sphere_radius=1,
+            ),
+            player.OffensePlayer(
+                x_pos=0,
+                y_pos=2,
+                orientation=270,
+                speed=5,
+                acceleration=2,
+                sphere_radius=1,
+            ),
+        ]
+        self.cone.shine_light(players=offense_players)
+
+        expected_hits = [
+            player.Hit(
+                id=offense_players[1].id,
+                point=geometric_object.Point(x=0, y=-9),
+            ),
+            player.Hit(
+                id=offense_players[0].id,
+                point=geometric_object.Point(x=2, y=0),
+            ),
+            player.Hit(
+                id=offense_players[3].id,
+                point=geometric_object.Point(x=0, y=1),
+            ),
+        ]
+
+        output_hits = [trace.hit for trace in self.cone.traces]
+
+        assert all(
+            output == expected for output, expected in zip(output_hits, expected_hits)
         )
 
 
@@ -65,7 +134,7 @@ class TestTrace:
         return offense_players
 
     @pytest.fixture(name="trace")
-    def create_trace(self, offense_players: list[player.OffensePlayer]) -> player.Trace:
+    def create_trace(self) -> player.Trace:
         trace = player.Trace(
             line=geometric_object.Line(m=0, n=1),
             orientation=180,

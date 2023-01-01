@@ -237,6 +237,10 @@ class Cone:
         ]
         return traces
 
+    def shine_light(self, players: list[OffensePlayer]) -> None:
+        for trace in self.traces:
+            trace.find_hit(players=players)
+
 
 class DLinePlayer(Player):
     def __init__(
