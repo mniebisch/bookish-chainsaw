@@ -1,10 +1,16 @@
-from typing import Callable
+from typing import Any, Callable
 
 import numpy as np
 
 from mmfl.feature.light import geometric_object
 
-__all__ = ["calc_orientation_signs", "calc_vector_signs", "find_nested_argmin"]
+__all__ = [
+    "calc_orientation_signs",
+    "calc_vector_signs",
+    "find_nearest",
+    "find_nearest_arg",
+    "find_nested_argmin",
+]
 
 
 def _clean_zeros(xs: list[float]) -> list[float]:
@@ -33,6 +39,18 @@ def calc_vector_signs(
     assert len(signs) == 2
 
     return signs[0], signs[1]
+
+
+def find_nearest(array: np.ndarray, value: float) -> Any:
+    array = np.asarray(array)
+    idx = (np.abs(array - value)).argmin()
+    return array[idx]
+
+
+def find_nearest_arg(array: np.ndarray, value: float) -> int:
+    array = np.asarray(array)
+    idx = (np.abs(array - value)).argmin()
+    return idx
 
 
 def find_nested_argmin(xs: list[list[float | int]]) -> tuple[int, int] | tuple:
