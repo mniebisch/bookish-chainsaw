@@ -1,7 +1,9 @@
+from typing import Optional
+
 import numpy as np
 from skimage import draw, morphology
 
-from mmfl.feature.light import geometric_object, player, utils
+from mmfl.feature.light import geometric_object, linear, player, utils
 
 # TODO calc all hits
 # TODO calc possible signs for play direction?
@@ -111,19 +113,14 @@ class Field:
     @property
     def field_borders(
         self,
-    ) -> tuple[
-        geometric_object.Line,
-        geometric_object.AsymptoteX,
-        geometric_object.Line,
-        geometric_object.AsymptoteX,
-    ]:
+    ) -> list[geometric_object.Line | geometric_object.AsymptoteX]:
         return (self.ymax, self.xmax, self.ymin, self.xmin)
 
     def get_y_ind(self, value: float) -> int:
-        return utils.find_nearest_arg(self.x_range, value)
+        return utils.find_nearest_arg(self.y_range, value)
 
     def get_x_ind(self, value: float) -> int:
-        return utils.find_nearest_arg(self.y_range, value)
+        return utils.find_nearest_arg(self.x_range, value)
 
     def calc_player_interactions(self) -> None:
         for defense_player in self.dline_players:
@@ -145,11 +142,16 @@ class Field:
         hit_point = trace.hit.point
         source_point = trace.origin
 
-        hit_point_x = self.get_x_ind(hit_point.x)
-        hit_point_y = self.get_y_ind(hit_point.y)
+        return self.draw_line(point1=hit_point, point2=source_point)
 
-        source_point_x = self.get_x_ind(source_point.x)
-        source_point_y = self.get_y_ind(source_point.y)
+    def draw_line(
+        self, point1: geometric_object.Point, point2: geometric_object.Point
+    ) -> np.ndarray:
+        hit_point_x = self.get_x_ind(point1.x)
+        hit_point_y = self.get_y_ind(point1.y)
+
+        source_point_x = self.get_x_ind(point2.x)
+        source_point_y = self.get_y_ind(point2.y)
 
         rr, cc = draw.line(
             r0=source_point_y, c0=source_point_x, r1=hit_point_y, c1=hit_point_x
@@ -157,3 +159,38 @@ class Field:
         grid = np.zeros(self.grid_shape, dtype=int)
         grid[rr, cc] = 1
         return grid
+
+    def find_hit(self, trace: player.Trace) -> geometric_object.Point:
+        intersections: list[Optional[geometric_object.Point]] = [
+            linear.calc_intersection(line1=border, line2=trace.line)
+            for border in self.field_borders
+        ]
+        intersections: list[geometric_object.Point] = [
+            intersection for intersection in intersections if intersection is not None
+        ]
+        intersections, _ = trace.filter_intersections(
+            intersections=[[intersection] for intersection in intersections],
+            elements=list(range(len(intersections))),
+        )
+        intersections = [intersection[0] for intersection in intersections]
+        distances: list[float] = [
+            np.linalg.norm(point.as_array() - trace.origin.as_array())
+            for point in intersections
+        ]
+        distance_argmin = np.argmin(distances)
+        return intersections[distance_argmin]
+
+    def draw_cone(self, defense_player: player.DLinePlayer) -> np.ndarray:
+        trace_imgs = []
+        for trace in defense_player.cone.traces:
+            if trace.hit is not None:
+                trace_img = self.draw_trace(trace=trace)
+                trace_imgs.append(trace_img)
+            else:
+                border_intersection: geometric_object.Point = self.find_hit(trace=trace)
+                trace_img = self.draw_line(
+                    point1=border_intersection, point2=trace.origin
+                )
+                trace_imgs.append(trace_img)
+        trace_imgs = np.stack(trace_imgs)
+        return np.sum(trace_imgs, axis=0)
