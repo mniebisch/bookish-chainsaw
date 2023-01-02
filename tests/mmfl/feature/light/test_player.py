@@ -1,6 +1,6 @@
 import pytest
 
-from mmfl.feature.light import geometric_object, player
+from mmfl.feature.light import geometric_object, player, quadratic
 
 
 class TestConeBasics:
@@ -196,3 +196,39 @@ class TestTrace:
     ) -> None:
         trace.find_hit(players=offense_players[:1])
         assert trace.hit is None
+
+    def test_filter_intersection_player_num(
+        self, trace: player.Trace, offense_players: list[player.OffensePlayer]
+    ) -> None:
+        intersections: list[list[geometric_object.Point]] = [
+            quadratic.calc_intersection(line=trace.line, circle=player.sphere)
+            for player in offense_players
+        ]
+        _, filtered_players = trace.filter_intersections(
+            intersections=intersections, elements=offense_players
+        )
+        assert len(filtered_players) == 2
+
+    def test_filter_intersection_intersections_num(
+        self, trace: player.Trace, offense_players: list[player.OffensePlayer]
+    ) -> None:
+        intersections: list[list[geometric_object.Point]] = [
+            quadratic.calc_intersection(line=trace.line, circle=player.sphere)
+            for player in offense_players
+        ]
+        filtered_intersections, _ = trace.filter_intersections(
+            intersections=intersections, elements=offense_players
+        )
+        assert len(filtered_intersections) == 2
+
+    def test_filter_intersection_num(
+        self, trace: player.Trace, offense_players: list[player.OffensePlayer]
+    ) -> None:
+        intersections: list[list[geometric_object.Point]] = [
+            quadratic.calc_intersection(line=trace.line, circle=player.sphere)
+            for player in offense_players
+        ]
+        filtered_intersections, filtered_players = trace.filter_intersections(
+            intersections=intersections, elements=offense_players
+        )
+        assert len(filtered_intersections) == len(filtered_players)

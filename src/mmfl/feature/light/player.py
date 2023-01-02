@@ -1,7 +1,7 @@
 import dataclasses
 import uuid
 import warnings
-from typing import Optional
+from typing import Any, Optional
 
 import numpy as np
 
@@ -131,9 +131,11 @@ class Trace:
             raise ValueError
         self._hit = value
 
-    def _filter_intersections(
-        self, intersections: list[list[geometric_object.Point]]
-    ) -> list[list[geometric_object.Point]]:
+    def filter_intersections(
+        self, intersections: list[list[geometric_object.Point]], elements: list[Any]
+    ) -> tuple[list[list[geometric_object.Point]], list[Any]]:
+        if len(elements) != len(intersections):
+            raise ValueError
         intersection_masks = [
             [self._compare_sign(destination=point) for point in intersection_points]
             for intersection_points in intersections
@@ -143,7 +145,20 @@ class Trace:
             [point for point, mask in zip(intersection_points, masks) if mask]
             for intersection_points, masks in zip(intersections, intersection_masks)
         ]
-        return intersections_filtered
+
+        intersections_filtered = [
+            intersection_points
+            for intersection_points in intersections_filtered
+            if intersection_points
+        ]
+
+        elements_filtered = [
+            element
+            for element, masks in zip(elements, intersection_masks)
+            if any(masks)
+        ]
+
+        return intersections_filtered, elements_filtered
 
     def find_hit(self, players: list[OffensePlayer]) -> None:
         intersections: list[list[geometric_object.Point]] = [
@@ -151,7 +166,9 @@ class Trace:
             for player in players
         ]
 
-        intersections = self._filter_intersections(intersections=intersections)
+        intersections, players = self.filter_intersections(
+            intersections=intersections, elements=players
+        )
 
         distances: list[list[float]] = [
             [
