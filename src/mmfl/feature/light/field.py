@@ -108,6 +108,17 @@ class Field:
     def xmax(self) -> geometric_object.AsymptoteX:
         return geometric_object.AsymptoteX(x=self.x_yards)
 
+    @property
+    def field_borders(
+        self,
+    ) -> tuple[
+        geometric_object.Line,
+        geometric_object.AsymptoteX,
+        geometric_object.Line,
+        geometric_object.AsymptoteX,
+    ]:
+        return (self.ymax, self.xmax, self.ymin, self.xmin)
+
     def get_y_ind(self, value: float) -> int:
         return utils.find_nearest_arg(self.x_range, value)
 
