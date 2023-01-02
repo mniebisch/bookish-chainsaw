@@ -24,8 +24,9 @@ def _calc_line_asymptote_intersection(
 ) -> Optional[geometric_object.Point]:
     y = asymptote.x * line.m + line.n
     x = line.calc_x(y=y)
-    if x is None:
-        raise ValueError
+    if x is None:  # line.m == 0
+        x = asymptote.x
+
     return geometric_object.Point(x=x, y=y)
 
 
