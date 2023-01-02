@@ -1,6 +1,8 @@
 __all__ = ["AsymptoteX", "Circle", "Line", "Point"]
 
 import dataclasses
+import math
+from typing import Optional
 
 import numpy as np
 
@@ -24,6 +26,12 @@ class Line:
 
     def calc_y(self, x: float) -> float:
         return self.m * x + self.n
+
+    def calc_x(self, y: float) -> Optional[float]:
+        if math.isclose(self.m, 0):
+            return None
+        else:
+            return (y - self.n) / self.m
 
 
 @dataclasses.dataclass(frozen=True, order=True)
