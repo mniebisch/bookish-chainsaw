@@ -31,7 +31,7 @@ class Field:
 
     @property
     def grid_resolution_factor(self) -> int:
-        return 1
+        return 10
 
     @property
     def _buffer_factor(self) -> int:
@@ -53,6 +53,7 @@ class Field:
     def grid_shape(self) -> tuple[int, int]:
         return (self.ylen, self.xlen)
 
+    # TODO check for y range
     def _range(self, yards: float) -> np.ndarray:
         yards = int(yards)
         buffer = int(yards / self._buffer_factor)
@@ -64,7 +65,14 @@ class Field:
 
     @property
     def y_range(self) -> np.ndarray:
-        return self._range(self.y_yards)
+        # return self._range(self.y_yards)
+        yards = int(self.y_yards)
+        buffer = int(yards / self._buffer_factor)
+        return np.arange(
+            start=yards + buffer,
+            stop=0 - buffer,
+            step=-1 / self.grid_resolution_factor,
+        )
 
     @property
     def oline_players(self) -> list[player.OffensePlayer]:
@@ -129,12 +137,56 @@ class Field:
     def calc_convex_grid(self) -> np.ndarray:
         grid = np.zeros(self.grid_shape, dtype=int)
 
-        for hull_player in self.offense:
+        # for hull_player in self.offense:
+        for hull_player in self.dline_players + [self.quater_back]:
             x_ind = self.get_x_ind(hull_player.x_pos)
             y_ind = self.get_y_ind(hull_player.y_pos)
             grid[y_ind, x_ind] = 1
 
         return morphology.convex_hull_image(grid)
+
+    def default_pocket(self) -> np.ndarray:
+        grid = np.zeros(self.grid_shape, dtype=int)
+        offense_players = [
+            (offense_player.x_pos, offense_player.y_pos)
+            for offense_player in self.offense
+        ]
+        offense_players = np.array(offense_players)
+        x_min = np.min(offense_players[:, 0])
+        x_max = np.max(offense_players[:, 0])
+        y_min = np.min(offense_players[:, 1])
+        y_max = np.max(offense_players[:, 1])
+
+        top_left = (x_min, y_max)
+        top_right = (x_max, y_max)
+        bottom_right = (x_max, y_min)
+        bottom_left = (x_min, y_min)
+
+        polygon = [top_left, top_right, bottom_right, bottom_left]
+        x_values = [self.get_x_ind(x) for x, _ in polygon]
+        y_values = [self.get_y_ind(y) for _, y in polygon]
+        rr, cc = draw.polygon(r=y_values, c=x_values)
+        grid[rr, cc] = 1
+        return grid
+
+    def calc_pocket_components(self) -> np.ndarray:
+        import matplotlib.pyplot as plt
+
+        default_pocket = self.default_pocket()
+        defense_cones = [
+            self.draw_cone(defense_player) for defense_player in self.dline_players
+        ]
+        fig, axs = plt.subplots(len(defense_cones))
+        for i, img in enumerate(defense_cones):
+            axs[i].imshow(img > 0)
+        plt.show()
+        defense_cones = np.stack(defense_cones)
+        defense_light = np.sum(defense_cones, axis=0)
+        defense_light = defense_light > 0
+        pocket_light = np.logical_and(defense_light, default_pocket)
+        actual_pocket = default_pocket - np.logical_not(pocket_light).astype(int)
+        actual_pocket = np.where(np.isclose(actual_pocket, 0), 1, 0)
+        return actual_pocket
 
     def draw_trace(self, trace: player.Trace) -> np.ndarray:
         if trace.hit is None:

@@ -73,3 +73,14 @@ def find_nested_argmin(xs: list[list[float | int]]) -> tuple[int, int] | tuple:
     )
 
     return main_argmin, nested_argmin[main_argmin]
+
+
+def create_angle_map(step: float = 0.01) -> tuple[np.ndarray, np.ndarray]:
+    a = np.arange(0, 360, step=step)
+    ind = find_nearest_arg(a, 90)
+    b = np.roll(np.arange(360, 0, step=-step), ind)
+    return a, b
+
+
+def map_angle(value: np.ndarray) -> np.ndarray:
+    return 360 - value + 90
