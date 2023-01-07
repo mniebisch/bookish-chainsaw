@@ -30,6 +30,12 @@ def calc_light_metrics(
 ) -> dict:
     """
     frame_df: DataFrame of a single play.
+
+    Assume all rows in frame_df have same
+        - gameId
+        - playId
+        - frameID
+
     """
     # adapt angles from NFL data to unit circle
     frame_df.loc[:, "o"] = utils.map_angle(frame_df.loc[:, "o"])
