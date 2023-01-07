@@ -8,6 +8,8 @@ pandas==1.5.1
 pre-commit==2.20.0
 pylint==2.13.8
 pylint-google-style-guide-imports-enforcing==1.2.0
+python-dotenv
+scikit-image==0.19.3
 shapely==2.0.0
-torch==1.12.1
-torchvision==0.13.1
+torch==1.13.1
+torchvision==0.14.1
