@@ -20,6 +20,7 @@ class Player:
         orientation: float,
         speed: float,
         acceleration: float,
+        player_id: Optional[int] = None,
     ) -> None:
         self._x_pos = x_pos
         self._y_pos = y_pos
@@ -27,7 +28,7 @@ class Player:
         self._speed = speed
         self._acceleration = acceleration
 
-        self._id = uuid.uuid4()
+        self._id = uuid.uuid4() if player_id is None else player_id
 
     @property
     def x_pos(self) -> float:
@@ -69,6 +70,7 @@ class OffensePlayer(Player):
         speed: float,
         acceleration: float,
         sphere_radius: float,
+        nfl_id: Optional[int] = None,
     ) -> None:
         super().__init__(
             x_pos=x_pos,
@@ -76,6 +78,7 @@ class OffensePlayer(Player):
             orientation=orientation,
             speed=speed,
             acceleration=acceleration,
+            player_id=nfl_id,
         )
 
         self._sphere = geometric_object.Circle(
@@ -269,6 +272,7 @@ class DLinePlayer(Player):
         acceleration: float,
         phi_max: float,
         phi_num: float,
+        nfl_id: Optional[int] = None,
     ) -> None:
         super().__init__(
             x_pos=x_pos,
@@ -276,6 +280,7 @@ class DLinePlayer(Player):
             orientation=orientation,
             speed=speed,
             acceleration=acceleration,
+            player_id=nfl_id,
         )
         self._cone = Cone(
             source=geometric_object.Point(x=self.x_pos, y=self.y_pos),
