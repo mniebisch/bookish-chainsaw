@@ -1,24 +1,24 @@
-import numpy as np
-import pandas as pd
-
-from mmfl.feature.light import tools, utils
-
 """
 How to use with groupby.
 
 import functools
 
 foo = functools.partial(
-    calc_light_metrics, 
-    qb_radius=qb_radius, 
-    oline_radius=oline_radius, 
-    phi_max=phi_max, 
+    calc_light_metrics,
+    qb_radius=qb_radius,
+    oline_radius=oline_radius,
+    phi_max=phi_max,
     phi_num=phi_num
 )
 
 df.groupby(['xyz']).apply(foo)
 
 """
+
+import numpy as np
+import pandas as pd
+
+from mmfl.feature.light import tools, utils
 
 
 def calc_light_metrics(
