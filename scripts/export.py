@@ -27,7 +27,7 @@ def calc_light_metrics(
     oline_radius: float,
     phi_max: int,
     phi_num: int,
-) -> dict:
+) -> dict[str, dict[str, int | dict[str, int]]]:
     """
     frame_df: DataFrame of a single play.
 
@@ -65,7 +65,7 @@ def calc_light_metrics(
     # O-Line block metric
     oline_block_sum = np.sum(light_hit[:, :-1])
     oline_block_attribution = np.sum(light_hit[:, :-1], axis=0)
-    oline_block_attribution = {
+    oline_block_attribution: dict[str, int] = {
         oline_id: block
         for oline_id, block in zip(
             sorted([offense_player.id for offense_player in play_field.oline_players]),
