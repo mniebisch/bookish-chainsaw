@@ -39,7 +39,13 @@ class Field:
 
     @property
     def x_range(self) -> np.ndarray:
-        return self._range(self.x_yards)
+        yards = int(self.x_yards)
+        buffer = int(yards / self._buffer_factor)
+        return np.arange(
+            start=0 - buffer,
+            stop=yards + buffer,
+            step=1 / self.grid_resolution_factor,
+        )
 
     @property
     def xlen(self) -> int:
@@ -53,19 +59,8 @@ class Field:
     def grid_shape(self) -> tuple[int, int]:
         return (self.ylen, self.xlen)
 
-    # TODO check for y range
-    def _range(self, yards: float) -> np.ndarray:
-        yards = int(yards)
-        buffer = int(yards / self._buffer_factor)
-        return np.arange(
-            start=0 - buffer,
-            stop=yards + buffer,
-            step=1 / self.grid_resolution_factor,
-        )
-
     @property
     def y_range(self) -> np.ndarray:
-        # return self._range(self.y_yards)
         yards = int(self.y_yards)
         buffer = int(yards / self._buffer_factor)
         return np.arange(
