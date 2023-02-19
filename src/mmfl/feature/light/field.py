@@ -125,9 +125,19 @@ class Field:
         return (self.ymax, self.xmax, self.ymin, self.xmin)
 
     def get_y_ind(self, value: float) -> int:
+        """
+        Drawing utility.
+        Map actual field position (value) to position on to be drawn grid.
+        Difference due to `self.grid_resolution_factor`.
+        """
         return utils.find_nearest_arg(self.y_range, value)
 
     def get_x_ind(self, value: float) -> int:
+        """
+        Drawing utility.
+        Map actual field position (value) to position on to be drawn grid.
+        Difference due to `self.grid_resolution_factor`.
+        """
         return utils.find_nearest_arg(self.x_range, value)
 
     def calc_player_interactions(self) -> None:
