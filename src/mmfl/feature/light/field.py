@@ -121,6 +121,10 @@ class Field:
         geometric_object.AsymptoteX,
         geometric_object.Line,
         geometric_object.AsymptoteX,
+        # player.TraceElements,
+        # player.TraceElements,
+        # player.TraceElements,
+        # player.TraceElements,
     ]:
         return (self.ymax, self.xmax, self.ymin, self.xmin)
 
@@ -185,7 +189,7 @@ class Field:
         defense_cones = [
             self.draw_cone(defense_player) for defense_player in self.dline_players
         ]
-        fig, axs = plt.subplots(len(defense_cones))
+        _, axs = plt.subplots(len(defense_cones))
         for i, img in enumerate(defense_cones):
             axs[i].imshow(img > 0)
         plt.show()
@@ -223,7 +227,9 @@ class Field:
 
     def find_hit(self, trace: player.Trace) -> geometric_object.Point:
         intersections: list[Optional[geometric_object.Point]] = [
-            linear.calc_intersection(line1=border, line2=trace.line)
+            linear.calc_intersection(
+                line1=border, line2=trace.line  # type: ignore [arg-type]
+            )
             for border in self.field_borders
         ]
         intersections: list[geometric_object.Point] = [
