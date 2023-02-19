@@ -25,7 +25,7 @@ if __name__ == "__main__":
     tracking_df.loc[:, "o"] = utils.map_angle(tracking_df.loc[:, "o"])
     tracking_df.loc[:, "dir"] = utils.map_angle(tracking_df.loc[:, "dir"])
 
-    play_field = tools.create_field_frame(
+    play_field: field.Field = tools.create_field_frame(
         tracking_df=tracking_df,
         game_id=game_id,
         play_id=play_id,
