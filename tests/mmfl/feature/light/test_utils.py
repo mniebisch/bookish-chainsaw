@@ -1,3 +1,4 @@
+import numpy as np
 import pytest
 
 from mmfl.feature.light import geometric_object, utils
@@ -69,3 +70,20 @@ class TestCalcVectorSigns:
         output = utils.calc_vector_signs(source=source, destination=destination)
 
         assert expected == output
+
+
+class TestMapAngle:
+    @pytest.mark.parametrize(
+        "nfl_angle, expected_trig_angle",
+        [(0, 90), (90, 0), (180, 270), (360, 90)],
+    )
+    def test_map_angles(self, nfl_angle: float, expected_trig_angle: float) -> None:
+        nfl_angle = np.array([nfl_angle])
+        expected_trig_angle = np.array([expected_trig_angle])
+        output = utils.map_angle(nfl_angle=nfl_angle)
+        np.testing.assert_allclose(expected_trig_angle, output)
+
+    def test_raise_invalid_input(self) -> None:
+        invalid_nfl_angle = 370
+        with pytest.raises(ValueError):
+            utils.map_angle(nfl_angle=invalid_nfl_angle)

@@ -10,6 +10,7 @@ __all__ = [
     "find_nearest",
     "find_nearest_arg",
     "find_nested_argmin",
+    "map_angle",
 ]
 
 
@@ -82,5 +83,9 @@ def create_angle_map(step: float = 0.01) -> tuple[np.ndarray, np.ndarray]:
     return a, b
 
 
-def map_angle(value: np.ndarray) -> np.ndarray:
-    return 360 - value + 90
+def map_angle(nfl_angle: np.ndarray) -> np.ndarray:
+    outside_range = np.logical_or(nfl_angle < 0, nfl_angle > 360)
+    if np.any(outside_range):
+        raise ValueError
+    trigonometric_angle = 360 - nfl_angle + 90
+    return trigonometric_angle % 360
