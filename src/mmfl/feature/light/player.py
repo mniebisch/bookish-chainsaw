@@ -7,7 +7,13 @@ import numpy as np
 
 from mmfl.feature.light import geometric_object, quadratic, utils
 
-__all__ = ["Cone", "Trace"]
+__all__ = [
+    "Cone",
+    "DLinePlayer",
+    "Hit",
+    "OffensePlayer",
+    "Trace",
+]
 
 TraceElements = geometric_object.AsymptoteX | geometric_object.Line
 
