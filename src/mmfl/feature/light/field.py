@@ -147,7 +147,6 @@ class Field:
     def calc_convex_grid(self) -> np.ndarray:
         grid = np.zeros(self.grid_shape, dtype=int)
 
-        # for hull_player in self.offense:
         for hull_player in self.dline_players + [self.quater_back]:
             x_ind = self.get_x_ind(hull_player.x_pos)
             y_ind = self.get_y_ind(hull_player.y_pos)
