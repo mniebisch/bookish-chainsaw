@@ -13,6 +13,7 @@ __all__ = [
     "Hit",
     "OffensePlayer",
     "Trace",
+    "TraceElements",
 ]
 
 TraceElements = geometric_object.AsymptoteX | geometric_object.Line
