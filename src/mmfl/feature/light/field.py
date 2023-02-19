@@ -121,10 +121,6 @@ class Field:
         geometric_object.AsymptoteX,
         geometric_object.Line,
         geometric_object.AsymptoteX,
-        # player.TraceElements,
-        # player.TraceElements,
-        # player.TraceElements,
-        # player.TraceElements,
     ]:
         return (self.ymax, self.xmax, self.ymin, self.xmin)
 
