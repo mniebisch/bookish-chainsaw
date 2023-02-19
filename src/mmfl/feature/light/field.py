@@ -116,7 +116,12 @@ class Field:
     @property
     def field_borders(
         self,
-    ) -> list[geometric_object.Line | geometric_object.AsymptoteX]:
+    ) -> tuple[
+        geometric_object.Line,
+        geometric_object.AsymptoteX,
+        geometric_object.Line,
+        geometric_object.AsymptoteX,
+    ]:
         return (self.ymax, self.xmax, self.ymin, self.xmin)
 
     def get_y_ind(self, value: float) -> int:
